@@ -63,7 +63,10 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
 
             String content = extractContent(response);
             SummaryJson summaryJson = objectMapper.readValue(stripCodeFence(content), SummaryJson.class);
-            List<SummaryItemJson> items = summaryJson.items() == null ? List.of() : summaryJson.items();
+            if (summaryJson == null || summaryJson.items() == null) {
+                throw new ArticleSummaryExternalApiException("Upstage 요약 응답에 필수 items 배열이 없습니다.", true, null);
+            }
+            List<SummaryItemJson> items = summaryJson.items();
             return new ArticleSummaryResult(items.stream()
                 .map(item -> new ArticleSummaryItem(ArticleSummaryIcon.from(item.iconKey()), item.text()))
                 .toList());
@@ -94,11 +97,11 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
             "temperature", 0.2,
             "top_p", 0.9,
             "reasoning_effort", "low",
-            "response_format", responseFormat(prompt.maxItems())
+            "response_format", responseFormat(prompt.maxItems(), prompt.maxTextLength())
         );
     }
 
-    private Map<String, Object> responseFormat(int maxItems) {
+    private Map<String, Object> responseFormat(int maxItems, int maxTextLength) {
         return Map.of(
             "type", "json_schema",
             "json_schema", Map.of(
@@ -127,7 +130,7 @@ public class UpstageArticleSummaryClient implements ArticleSummaryAiClient {
                                     ),
                                     "text", Map.of(
                                         "type", "string",
-                                        "maxLength", 200
+                                        "maxLength", maxTextLength
                                     )
                                 )
                             )

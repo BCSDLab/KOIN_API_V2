@@ -37,6 +37,8 @@ public class LandAcceptanceFixture {
                 .phone("010-1234-5678")
                 .address("서울시 강남구")
                 .size("100.0")
+                .isMonthlyAvailable(true)
+                .isCharterAvailable(true)
                 .imageUrls(imageUrls)
                 .build()
         );
@@ -62,6 +64,8 @@ public class LandAcceptanceFixture {
                 .phone("010-1133-5555")
                 .address("천안시 동남구 강남구")
                 .size("100.0")
+                .isMonthlyAvailable(true)
+                .isCharterAvailable(true)
                 .imageUrls(imageUrls)
                 .build()
         );
@@ -83,6 +87,32 @@ public class LandAcceptanceFixture {
                 .charterFee("1000")
                 .isDeleted(true)
                 .imageUrls(imageUrls)
+                .build()
+        );
+    }
+
+    public Land 별밭하우스() {
+        return landRepository.save(
+            Land.builder()
+                .internalName("별밭하우스")
+                .name("별밭하우스")
+                .roomType("원룸")
+                .latitude("36.765")
+                .longitude("127.282")
+                .address("충남 천안시 동남구 병천면")
+                .build()
+        );
+    }
+
+    public Land 코인하우스() {
+        return landRepository.save(
+            Land.builder()
+                .internalName("koinhouse")
+                .name("KOIN House")
+                .roomType("투룸")
+                .latitude("36.765")
+                .longitude("127.282")
+                .address("충남 천안시 동남구 병천면")
                 .build()
         );
     }

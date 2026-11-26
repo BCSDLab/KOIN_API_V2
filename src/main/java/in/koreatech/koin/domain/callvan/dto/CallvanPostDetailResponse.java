@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.callvan.dto;
 
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -48,10 +50,33 @@ public record CallvanPostDetailResponse(
     String status,
 
     @Schema(description = "참여자 목록")
-    List<CallvanParticipantResponse> participants
+    List<CallvanParticipantResponse> participants,
+
+    @Schema(description = "표시용 제목. 원문 title은 유지합니다.") String displayTitle,
+    @Schema(description = "표시용 출발지. 직접 입력 장소는 원문 유지") String displayDeparture,
+    @Schema(description = "표시용 도착지. 직접 입력 장소는 원문 유지") String displayArrival
 ) {
 
+    public CallvanPostDetailResponse(Integer id, String title, String departure, String arrival,
+        LocalDate departureDate, LocalTime departureTime, Integer currentParticipants, Integer maxParticipants,
+        String status, List<CallvanParticipantResponse> participants) {
+        this(id, title, departure, arrival, departureDate, departureTime, currentParticipants, maxParticipants,
+            status, participants, title, departure, arrival);
+    }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("translation_source_version")
+    @Schema(description = "모집글 번역 요청의 expected_source_version으로 전달할 버전")
+    public String getTranslationSourceVersion() {
+        return in.koreatech.koin.domain.translation.service.TranslationSourceVersion.of(
+            in.koreatech.koin.domain.translation.service.TranslationSourceFields.callvanPost(title, departure, arrival));
+    }
+
     public static CallvanPostDetailResponse from(CallvanPost post, Integer userId, Set<Integer> reportedUserIds) {
+        return from(post, userId, reportedUserIds, SupportedLanguage.DEFAULT);
+    }
+
+    public static CallvanPostDetailResponse from(CallvanPost post, Integer userId, Set<Integer> reportedUserIds,
+        SupportedLanguage language) {
         String departureName = post.getDepartureType().getName();
         if (StringUtils.hasText(post.getDepartureCustomName())) {
             departureName = post.getDepartureCustomName();
@@ -62,6 +87,8 @@ public record CallvanPostDetailResponse(
             arrivalName = post.getArrivalCustomName();
         }
 
+        String displayDeparture = CallvanPostSearchResponse.displayLocation(post.getDepartureType(), departureName, language);
+        String displayArrival = CallvanPostSearchResponse.displayLocation(post.getArrivalType(), arrivalName, language);
         return new CallvanPostDetailResponse(
             post.getId(),
             post.getTitle(),
@@ -75,7 +102,7 @@ public record CallvanPostDetailResponse(
             post.getParticipants().stream()
                 .filter(p -> !p.getIsDeleted())
                 .map(it -> CallvanParticipantResponse.from(it, userId, reportedUserIds))
-                .toList());
+                .toList(), displayDeparture + " -> " + displayArrival, displayDeparture, displayArrival);
     }
 
     @JsonNaming(SnakeCaseStrategy.class)

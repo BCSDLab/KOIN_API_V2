@@ -2,6 +2,7 @@ package in.koreatech.koin.unit.domain.community.article.service.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -23,7 +24,7 @@ import in.koreatech.koin.domain.community.article.service.summary.ArticleSummary
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySourceReader;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummarySourceSeed;
 import in.koreatech.koin.domain.community.article.service.summary.DocumentParseRequest;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 
 class ArticleSummarySourceReaderTest {
 
@@ -32,7 +33,7 @@ class ArticleSummarySourceReaderTest {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
         properties.setMaxDocumentsPerArticle(3);
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
@@ -73,7 +74,7 @@ class ArticleSummarySourceReaderTest {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
         properties.setMaxDocumentsPerArticle(3);
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
@@ -103,7 +104,7 @@ class ArticleSummarySourceReaderTest {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
         properties.setMaxDocumentsPerArticle(3);
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
@@ -136,7 +137,7 @@ class ArticleSummarySourceReaderTest {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
         properties.setMaxDocumentsPerArticle(3);
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
@@ -172,7 +173,7 @@ class ArticleSummarySourceReaderTest {
         };
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
         properties.setMaxDocumentsPerArticle(3);
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
@@ -206,7 +207,7 @@ class ArticleSummarySourceReaderTest {
         };
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
         properties.setMaxDocumentsPerArticle(3);
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
@@ -240,7 +241,7 @@ class ArticleSummarySourceReaderTest {
         };
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
         properties.setMaxDocumentsPerArticle(3);
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
@@ -269,7 +270,7 @@ class ArticleSummarySourceReaderTest {
     void 허용된_koreatech_하위_도메인_본문_URL이면_URL_내용을_조회해_요약_입력으로_사용한다() {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         when(s3Client.getContentFromUrl("https://stage-static.koreatech.in/articles/content/notice.txt"))
             .thenReturn("<p>신청 기간은 5월 20일까지입니다.</p>");
@@ -288,13 +289,18 @@ class ArticleSummarySourceReaderTest {
 
         assertThat(source.contentText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
         assertThat(source.mergedText()).isEqualTo("신청 기간은 5월 20일까지입니다.");
+
+        when(s3Client.getContentFromUrl(seed.content())).thenThrow(new IllegalStateException("temporary timeout"));
+        assertThatThrownBy(() -> reader.read(seed))
+            .isInstanceOf(ArticleSummaryExternalApiException.class)
+            .satisfies(exception -> assertThat(((ArticleSummaryExternalApiException)exception).isRetryable()).isTrue());
     }
 
     @Test
     void 본문_URL과_조회된_본문은_같은_fingerprint를_사용한다() {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         when(s3Client.getContentFromUrl("https://stage-static.koreatech.in/articles/content/notice.txt"))
             .thenReturn("<p>신청 기간은 5월 20일까지입니다.</p>");
@@ -322,13 +328,21 @@ class ArticleSummarySourceReaderTest {
         String resolvedFingerprint = reader.createFingerprint(resolvedSeed);
 
         assertThat(urlFingerprint).isEqualTo(resolvedFingerprint);
+
+        when(s3Client.getContentFromUrl(urlSeed.content())).thenThrow(new IllegalStateException("temporary timeout"));
+        String unavailableFingerprint = reader.createFingerprint(urlSeed);
+        assertThat(unavailableFingerprint).hasSize(64).isNotEqualTo(resolvedFingerprint);
+        assertThat(reader.createFingerprint(urlSeed)).isEqualTo(unavailableFingerprint);
+
+        doReturn(resolvedSeed.content()).when(s3Client).getContentFromUrl(urlSeed.content());
+        assertThat(reader.createFingerprint(urlSeed)).isEqualTo(resolvedFingerprint);
     }
 
     @Test
     void 본문이_URL로_시작하는_일반_텍스트이면_URL_본문으로_간주하지_않는다() {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(
@@ -352,7 +366,7 @@ class ArticleSummarySourceReaderTest {
     void 허용되지_않은_본문_URL은_요약_입력에서_제외한다() {
         FakeDocumentParseClient parseClient = new FakeDocumentParseClient();
         ArticleAiSummaryProperties properties = new ArticleAiSummaryProperties();
-        S3Client s3Client = mock(S3Client.class);
+        S3ClientWrapper s3Client = mock(S3ClientWrapper.class);
         when(s3Client.getDomainUrlPrefix()).thenReturn("https://static.koreatech.in/");
         ArticleSummarySourceReader reader = new ArticleSummarySourceReader(parseClient, properties, s3Client);
         ArticleSummarySourceSeed seed = new ArticleSummarySourceSeed(

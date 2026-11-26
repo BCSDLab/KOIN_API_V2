@@ -13,25 +13,21 @@ import org.testcontainers.containers.localstack.LocalStackContainer.Service;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlRequest;
 import in.koreatech.koin.infrastructure.s3.service.UploadService;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner.Builder;
 
 @Disabled
 class UploadServiceTest extends AcceptanceTest {
 
-    private AmazonS3 amazonS3;
+    private S3Client awsS3Client;
     private Builder presigner;
 
     @Container
@@ -45,14 +41,9 @@ class UploadServiceTest extends AcceptanceTest {
             localStackContainer.getAccessKey(),
             localStackContainer.getSecretKey()
         );
-        amazonS3 = AmazonS3ClientBuilder.standard()
-            .withRegion(localStackContainer.getRegion())
-            .withCredentials(new AWSStaticCredentialsProvider(
-                new BasicAWSCredentials(
-                    localStackContainer.getAccessKey(),
-                    localStackContainer.getSecretKey()
-                ))
-            )
+        awsS3Client = S3Client.builder()
+            .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
+            .region(Region.of(localStackContainer.getRegion()))
             .build();
 
         presigner = S3Presigner.builder()
@@ -63,11 +54,11 @@ class UploadServiceTest extends AcceptanceTest {
     @Test
     void 이미지_확장자를_받아_이미지_이름을_UUID로_생성_후_Presigned_URL을_생성하여_반환한다() {
         // given
-        S3Client utils = new S3Client(
+        S3ClientWrapper utils = new S3ClientWrapper(
             "test-bucket",
             "https://test-image.koreatech.in/",
             presigner,
-            amazonS3,
+            awsS3Client,
             Clock.systemDefaultZone()
         );
 

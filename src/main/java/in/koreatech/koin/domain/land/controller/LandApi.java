@@ -1,10 +1,12 @@
 package in.koreatech.koin.domain.land.controller;
 
 import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import in.koreatech.koin.domain.land.dto.LandResponse;
 import in.koreatech.koin.domain.land.dto.LandsGroupResponse;
@@ -25,9 +27,19 @@ public interface LandApi {
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "복덕방 목록 조회")
+    @Operation(summary = "복덕방 목록 조회", description = """
+        ### 복덕방 목록 조회
+        - `query`가 없거나 공백뿐이면 전체 목록을 반환합니다.
+        - `query`가 있으면 건물명 부분 일치로 검색합니다.
+            - 띄어쓰기와 대소문자는 구분하지 않습니다. ex) "별밭 하우스", "밭하우" => "별밭하우스"
+            - 삭제된 건물은 검색 결과에서 제외합니다.
+            - 일치하는 건물이 없으면 빈 목록을 반환합니다.
+        """)
     @GetMapping("/lands")
-    ResponseEntity<LandsGroupResponse> getLands();
+    ResponseEntity<LandsGroupResponse> getLands(
+        @Parameter(in = QUERY, description = "건물명 검색어 (선택)")
+        @RequestParam(required = false, defaultValue = "") String query
+    );
 
     @ApiResponses(
         value = {

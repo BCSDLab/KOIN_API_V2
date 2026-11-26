@@ -48,12 +48,13 @@ public interface AdminLandApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "201"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "복덕방 생성")
+    @Operation(summary = "복덕방 생성", description = "방이름·주소·위도·경도 필수")
     @SecurityRequirement(name = "Jwt Authentication")
     @PostMapping("/admin/lands")
     @AdminActivityLogging(domain = LANDS)
@@ -98,12 +99,13 @@ public interface AdminLandApi {
     @ApiResponses(
         value = {
             @ApiResponse(responseCode = "200"),
+            @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(hidden = true))),
             @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(hidden = true))),
         }
     )
-    @Operation(summary = "복덕방 수정")
+    @Operation(summary = "복덕방 수정", description = "방이름·주소·위도·경도 필수. 방 종류·크기·전화번호·사진은 보낸 값으로 바뀌고(null·빈 리스트면 비움), 설명·층수·가격·옵션은 null이면 기존 값을 유지합니다.")
     @SecurityRequirement(name = "Jwt Authentication")
     @PutMapping("/admin/lands/{id}")
     @AdminActivityLogging(domain = LANDS, domainIdParam = "id")

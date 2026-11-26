@@ -23,8 +23,10 @@ import static in.koreatech.koin.global.code.ApiResponseCode.*;
 public interface ShopOrderServiceRequestApi {
 
     @ApiResponseCodes({
-        OK,
+        CREATED,
         ILLEGAL_ARGUMENT,
+        INVALID_REQUEST_BODY,
+        INVALID_MENU_IN_SHOP,
         FORBIDDEN_USER_TYPE,
         NOT_FOUND_USER,
         NOT_FOUND_SHOP,
@@ -35,7 +37,9 @@ public interface ShopOrderServiceRequestApi {
     @Operation(summary = "사장님 주문 서비스 가입 요청", description = """
         ### 사장님이 자신이 소유한 가게를 주문 서비스 가입요청을 합니다.
         - 요청자는 점주(OWNER)만 가능합니다.
-        - NULL 값이 들어올 수 있는 필드는 없습니다.
+        - 예금주와 이관할 공개 메뉴를 한 개 이상 입력해야 합니다.
+        - 메뉴별 추가 옵션 그룹은 생략할 수 있습니다.
+        - 기존 메뉴 가격과 추가 옵션은 신청 시점의 데이터로 저장됩니다.
         - 이미 가입 요청이 진행 중인 가게는 중복으로 요청할 수 없습니다.
         - 이미 주문 서비스에 가입된 가게는 중복으로 요청할 수 없습니다.
         - DeliveryOption은 CAMPUS, OFF_CAMPUS, BOTH 중 하나여야 합니다.

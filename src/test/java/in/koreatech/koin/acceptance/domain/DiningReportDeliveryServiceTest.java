@@ -9,13 +9,11 @@ import static in.koreatech.koin.domain.dining.model.DiningReportStatus.PENDING;
 import static in.koreatech.koin.global.code.ApiResponseCode.DINING_REPORT_DELIVERY_CONFLICT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
 
-import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,14 +23,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
@@ -89,21 +84,12 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
-    @SpyBean
+    @Autowired
     private DiningReportSequenceRepository sequenceRepository;
-
-    @MockBean
-    private Clock deliveryClock;
-
-    private final AtomicReference<Instant> now = new AtomicReference<>(START);
 
     @BeforeEach
     void setUp() {
-        now.set(START);
-        when(deliveryClock.instant()).thenAnswer(invocation -> now.get());
-        when(deliveryClock.getZone()).thenReturn(KST);
-        when(deliveryClock.withZone(any(ZoneId.class)))
-            .thenAnswer(invocation -> Clock.fixed(now.get(), invocation.getArgument(0)));
+        clock.fix(START, KST);
         clear();
         new TransactionTemplate(transactionManager).executeWithoutResult(transaction -> {
             jdbcTemplate.update("INSERT INTO dining_soldout_report_sequence (id, last_sequence) VALUES (1, 0)");
@@ -261,11 +247,11 @@ class DiningReportDeliveryServiceTest extends AcceptanceTest {
     }
 
     private LocalDateTime currentTime() {
-        return LocalDateTime.ofInstant(now.get(), KST);
+        return LocalDateTime.now(clock.withZone(KST));
     }
 
     private void advance(long seconds) {
-        now.updateAndGet(instant -> instant.plusSeconds(seconds));
+        clock.advance(Duration.ofSeconds(seconds));
     }
 
     private List<Optional<DiningReportDeliveryResponse>> concurrentlyClaim() throws Exception {

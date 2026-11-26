@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -20,10 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
@@ -38,19 +33,9 @@ import in.koreatech.koin.domain.dining.model.Dining;
 import in.koreatech.koin.domain.dining.repository.DiningRepository;
 import in.koreatech.koin.domain.user.model.User;
 
-@Import(DiningApiTest.DiningClockConfig.class)
 class DiningApiTest extends AcceptanceTest {
 
-    @TestConfiguration(proxyBeanMethods = false)
-    static class DiningClockConfig {
-
-        @Bean
-        @Primary
-        Clock diningApiTestFixedClock() {
-            ZoneId zoneId = ZoneId.of("Asia/Seoul");
-            return Clock.fixed(LocalDateTime.of(2024, 1, 15, 12, 0).atZone(zoneId).toInstant(), zoneId);
-        }
-    }
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     @Autowired
     private DiningRepository diningRepository;
@@ -82,6 +67,7 @@ class DiningApiTest extends AcceptanceTest {
 
     @BeforeAll
     void setUp() {
+        clock.fix(LocalDateTime.of(2024, 1, 15, 12, 0).atZone(KST).toInstant(), KST);
         clear();
         coopShopFixture.현재학기();
         coop_준기 = userFixture.준기_영양사().getUser();
@@ -90,6 +76,16 @@ class DiningApiTest extends AcceptanceTest {
         token_현수 = userFixture.getToken(owner_현수);
         A코너_점심 = diningFixture.A코너_점심(LocalDate.parse("2024-01-15"));
         B코너_점심 = diningFixture.B코너_점심(LocalDate.parse("2024-01-15"));
+    }
+
+    @Test
+    void 능수관의_영문_표시명과_원래_장소명을_함께_반환한다() throws Exception {
+        diningFixture.능수관_점심(LocalDate.of(2024, 1, 16));
+
+        mockMvc.perform(get("/dinings").param("date", "240116").param("language", "en-US"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].place").value("능수관"))
+            .andExpect(jsonPath("$[0].display_place").value("Neungsu Hall"));
     }
 
     @Test

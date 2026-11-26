@@ -14,13 +14,13 @@ public record LandsResponse(
     @Schema(description = "상세 이름", example = "럭키빌(투베이)", requiredMode = NOT_REQUIRED)
     String internalName,
 
-    @Schema(description = "월세", example = "220~250만원(6개월)", requiredMode = NOT_REQUIRED)
+    @Schema(description = "월세 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "null", requiredMode = NOT_REQUIRED)
     String monthlyFee,
 
     @Schema(description = "위도", example = "36.769204", requiredMode = NOT_REQUIRED)
     Double latitude,
 
-    @Schema(description = "보증금", example = "4500", requiredMode = NOT_REQUIRED)
+    @Schema(description = "전세 - MVP 개편으로 항상 null (예전 앱 호환을 위해 키 유지)", example = "null", requiredMode = NOT_REQUIRED)
     String charterFee,
 
     @Schema(description = "이름", example = "럭키빌(투베이)", requiredMode = NOT_REQUIRED)
@@ -33,19 +33,31 @@ public record LandsResponse(
     Double longitude,
 
     @Schema(description = "방 종류", example = "투베이", requiredMode = NOT_REQUIRED)
-    String roomType
+    String roomType,
+
+    @Schema(description = "주소", example = "충청남도 천안시 동남구 병천면", requiredMode = NOT_REQUIRED)
+    String address,
+
+    @Schema(description = "월세 매물 여부 - 가격 대신 매물 종류 표시용, 어드민에서 체크한 값", example = "true", requiredMode = REQUIRED)
+    boolean isMonthlyAvailable,
+
+    @Schema(description = "전세 매물 여부 - 가격 대신 매물 종류 표시용, 어드민에서 체크한 값", example = "false", requiredMode = REQUIRED)
+    boolean isCharterAvailable
 ) {
 
     public static LandsResponse from(Land land) {
         return new LandsResponse(
             land.getInternalName(),
-            land.getMonthlyFee(),
+            null,
             land.getLatitude(),
-            land.getCharterFee(),
+            null,
             land.getName(),
             land.getId(),
             land.getLongitude(),
-            land.getRoomType()
+            land.getRoomType(),
+            land.getAddress(),
+            land.isMonthlyAvailable(),
+            land.isCharterAvailable()
         );
     }
 }

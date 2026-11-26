@@ -107,6 +107,16 @@ public class CoopShopAcceptanceFixture {
         return coopSemesterRepository.save(coopSemester);
     }
 
+    public CoopSemester _24_1학기_매장_없음() {
+        return coopSemesterRepository.save(
+            CoopSemester.builder()
+                .semester("24-1학기")
+                .fromDate(LocalDate.of(2024, 3, 1))
+                .toDate(LocalDate.of(2024, 6, 30))
+                .build()
+        );
+    }
+
     public CoopSemester 현재학기() {
         var coopSemester = coopSemesterRepository.save(
             CoopSemester.builder()

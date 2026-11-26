@@ -2,6 +2,7 @@ package in.koreatech.koin.acceptance.admin;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.ArticleAcceptanceFixture;
@@ -27,6 +29,7 @@ import in.koreatech.koin.domain.community.article.model.Board;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryLogRepository;
 import in.koreatech.koin.domain.community.article.repository.ArticleAiSummaryRepository;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryFailureType;
+import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryService;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 
@@ -49,6 +52,9 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
 
     @Autowired
     private ArticleAiSummaryLogRepository articleAiSummaryLogRepository;
+
+    @Autowired
+    private ArticleAiSummaryService articleAiSummaryService;
 
     private String koinAdminToken;
     private String studentToken;
@@ -97,7 +103,13 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
     }
 
     @Test
+    @Transactional
     void 승인된_코인_어드민은_super_admin이_아니어도_게시글_AI_요약_큐_상태를_조회한다() throws Exception {
+        for (int attempt = 2; attempt <= 9; attempt++) {
+            failedSummary.completeFailure(rawFailureReason, null);
+        }
+        articleAiSummaryRepository.save(failedSummary);
+
         mockMvc.perform(
                 get("/admin/articles/ai-summaries/overview")
                     .header("Authorization", "Bearer " + koinAdminToken)
@@ -110,7 +122,25 @@ class AdminArticleAiSummaryApiTest extends AcceptanceTest {
             .andExpect(jsonPath("$.status_counts[3].count").value(1))
             .andExpect(jsonPath("$.queue.ready_wait_count").value(1))
             .andExpect(jsonPath("$.queue.retryable_failed_count").value(1))
-            .andExpect(jsonPath("$.config.batch_size").value(5));
+            .andExpect(jsonPath("$.config.batch_size").value(5))
+            .andExpect(jsonPath("$.config.max_retry_count").value(10))
+            .andExpect(jsonPath("$.config.failed_retry_window_start_hour").value(0))
+            .andExpect(jsonPath("$.config.failed_retry_window_end_hour").value(24));
+
+        LocalDateTime now = LocalDateTime.now(clock);
+        assertThat(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now, 10, 1))
+            .extracting(ArticleAiSummary::getId).containsExactly(failedSummary.getId());
+        failedSummary.markProcessing("worker", now.plusHours(1));
+        articleAiSummaryService.completeFailure(failedSummary.getId(), "worker", "temporary failure");
+        assertThat(failedSummary.getRetryCount()).isEqualTo(10);
+        assertThat(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now.plusDays(1), 10, 1)).isEmpty();
+        assertThat(articleAiSummaryRepository.countAdminQueue(now.plusDays(1), 10).getRetryableFailedCount()).isZero();
+
+        failedSummary.reopenExhaustedRetryCycle(10);
+        failedSummary.markProcessing("worker", now.plusHours(1));
+        articleAiSummaryService.completeFailureWithoutRetry(failedSummary.getId(), "worker", "invalid api key");
+        assertThat(failedSummary.getRetryCount()).isEqualTo(10);
+        assertThat(articleAiSummaryRepository.findRetryableFailedSummariesForUpdate(now.plusDays(1), 10, 1)).isEmpty();
     }
 
     @Test

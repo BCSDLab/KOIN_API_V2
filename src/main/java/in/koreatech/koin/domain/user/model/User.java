@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.domain.language.model.SupportedLanguage;
 import in.koreatech.koin.global.exception.CustomException;
 import in.koreatech.koin.common.model.BaseEntity;
 import jakarta.persistence.Column;
@@ -33,6 +35,7 @@ import lombok.ToString;
 
 @Getter
 @Entity
+@DynamicUpdate
 @Table(name = "users")
 @Where(clause = "is_deleted=0")
 @NoArgsConstructor(access = PROTECTED)
@@ -76,6 +79,10 @@ public class User extends BaseEntity {
 
     @Column(name = "device_token")
     private String deviceToken;
+
+    @Size(max = 35)
+    @Column(name = "preferred_language", length = 35)
+    private String preferredLanguage;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -142,6 +149,10 @@ public class User extends BaseEntity {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.gender = gender;
+    }
+
+    public void changeLanguage(SupportedLanguage language) {
+        this.preferredLanguage = language.getCode();
     }
 
     public void updateName(String name) {

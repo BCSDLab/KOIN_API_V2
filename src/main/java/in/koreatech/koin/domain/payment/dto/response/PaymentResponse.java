@@ -82,7 +82,7 @@ public record PaymentResponse(
     @JsonFormat(pattern = "yyyy.MM.dd HH:mm")
     LocalDateTime requestedAt,
 
-    @Schema(description = "결제 승인 일시", example = "2025.06.21 21:00", requiredMode = REQUIRED)
+    @Schema(description = "결제 승인 일시. 직접 계좌이체 주문은 null", example = "2025.06.21 21:00", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "yyyy.MM.dd HH:mm")
     LocalDateTime approvedAt,
 
@@ -94,7 +94,10 @@ public record PaymentResponse(
     LocalTime estimatedAt,
 
     @Schema(description = "주문 상태", example = "COOKING", requiredMode = REQUIRED)
-    String orderStatus
+    String orderStatus,
+
+    @Schema(description = "직접 계좌이체 주문 계좌 정보. 은행명과 계좌번호는 스냅샷", requiredMode = NOT_REQUIRED)
+    BankAccountResponse bankAccount
 ) {
 
     @JsonNaming(value = SnakeCaseStrategy.class)
@@ -208,7 +211,8 @@ public record PaymentResponse(
             payment.getApprovedAt(),
             payment.getPaymentMethod().getDisplayName(),
             estimatedTime,
-            order.getStatus().name()
+            order.getStatus().name(),
+            BankAccountResponse.from(payment)
         );
     }
 }

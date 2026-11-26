@@ -1,5 +1,7 @@
 package in.koreatech.koin.domain.community.article.service.summary;
 
+import static in.koreatech.koin.domain.community.article.service.summary.ArticleSummaryPrompt.MAX_TEXT_LENGTH;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +17,6 @@ import org.springframework.util.StringUtils;
 public class ArticleSummaryValidator {
 
     private static final int MAX_ITEMS = 3;
-    private static final int MAX_TEXT_LENGTH = 200;
     private static final int DIAGNOSTIC_ITEM_LENGTH = 120;
     private static final Pattern CRITICAL_TOKEN_PATTERN = Pattern.compile(
         "(\\d{4}\\s*년\\s*\\d{1,2}\\s*월\\s*\\d{1,2}\\s*일)"
@@ -60,6 +61,10 @@ public class ArticleSummaryValidator {
     }
 
     public ValidationResult validateFilteringInvalidItems(ArticleSummaryResult result, String sourceText) {
+        return validateFilteringInvalidItems(result, sourceText, MAX_TEXT_LENGTH);
+    }
+
+    public ValidationResult validateFilteringInvalidItems(ArticleSummaryResult result, String sourceText, int maxTextLength) {
         if (result == null || result.items() == null || result.items().isEmpty()) {
             throw new ArticleSummaryValidationException("요약할 핵심 정보가 없습니다.");
         }
@@ -74,7 +79,7 @@ public class ArticleSummaryValidator {
         List<String> failureReasons = new ArrayList<>();
         for (ArticleSummaryItem item : result.items()) {
             try {
-                validLines.add(validateItem(item, normalizedSource, sourceCriticalTokens, seen));
+                validLines.add(validateItem(item, normalizedSource, sourceCriticalTokens, seen, maxTextLength));
             } catch (ArticleSummaryValidationException e) {
                 failureReasons.add(e.getMessage());
             }
@@ -94,7 +99,8 @@ public class ArticleSummaryValidator {
         ArticleSummaryItem item,
         String normalizedSource,
         Set<String> sourceCriticalTokens,
-        Set<String> seen
+        Set<String> seen,
+        int maxTextLength
     ) {
         if (item == null) {
             throw new ArticleSummaryValidationException("요약 항목이 비어 있습니다.");
@@ -103,8 +109,8 @@ public class ArticleSummaryValidator {
         if (!StringUtils.hasText(text)) {
             throw new ArticleSummaryValidationException("요약 문장이 비어 있습니다.");
         }
-        if (text.length() > MAX_TEXT_LENGTH) {
-            throw new ArticleSummaryValidationException("요약 문장이 200자를 초과했습니다.");
+        if (text.length() > maxTextLength) {
+            throw new ArticleSummaryValidationException("요약 문장이 %d자를 초과했습니다.".formatted(maxTextLength));
         }
         if (isMeaningless(text)) {
             throw new ArticleSummaryValidationException("구체 정보가 없는 요약 문장입니다.");

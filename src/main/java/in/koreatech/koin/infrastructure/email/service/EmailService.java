@@ -6,15 +6,10 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import com.amazonaws.services.simpleemail.model.Body;
-import com.amazonaws.services.simpleemail.model.Content;
-import com.amazonaws.services.simpleemail.model.Destination;
-import com.amazonaws.services.simpleemail.model.Message;
-import com.amazonaws.services.simpleemail.model.SendEmailRequest;
-
 import in.koreatech.koin.infrastructure.email.form.EmailForm;
 import in.koreatech.koin.infrastructure.email.client.SesMailSender;
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +32,12 @@ public class EmailService {
 
         String htmlBody = templateEngine.process(emailForm.getFilePath(), context);
 
-        return new SendEmailRequest()
-            .withDestination(new Destination().withToAddresses(targetEmail))
-            .withSource(NO_REPLY_EMAIL_ADDRESS)
-            .withMessage(new Message()
-                .withBody(new Body().withHtml(new Content().withCharset("UTF-8").withData(htmlBody)))
-                .withSubject(new Content().withCharset("UTF-8").withData(emailForm.getSubject())));
+        return SendEmailRequest.builder()
+            .destination(destination -> destination.toAddresses(targetEmail))
+            .source(NO_REPLY_EMAIL_ADDRESS)
+            .message(message -> message
+                .body(body -> body.html(content -> content.charset("UTF-8").data(htmlBody)))
+                .subject(content -> content.charset("UTF-8").data(emailForm.getSubject())))
+            .build();
     }
 }

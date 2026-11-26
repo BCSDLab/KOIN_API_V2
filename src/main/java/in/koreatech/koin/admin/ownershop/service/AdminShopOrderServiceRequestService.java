@@ -1,18 +1,25 @@
 package in.koreatech.koin.admin.ownershop.service;
 
+import static in.koreatech.koin.global.code.ApiResponseCode.ORDER_SERVICE_REQUEST_INCOMPLETE;
 import static in.koreatech.koin.global.code.ApiResponseCode.SEARCH_QUERY_ONLY_WHITESPACE;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServiceRequestProcessRequest;
 import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServiceResponse;
 import in.koreatech.koin.admin.ownershop.dto.AdminShopOrderServicesResponse;
 import in.koreatech.koin.admin.ownershop.dto.ShopOrderServiceRequestCondition;
 import in.koreatech.koin.admin.ownershop.repository.AdminShopOrderServiceRequestRepository;
 import in.koreatech.koin.common.model.Criteria;
+import in.koreatech.koin.domain.order.shop.service.OrderableShopPromotionService;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 public class AdminShopOrderServiceRequestService {
 
     private final AdminShopOrderServiceRequestRepository adminShopOrderServiceRequestRepository;
+    private final OrderableShopPromotionService orderableShopPromotionService;
+    private final Clock clock;
 
     public AdminShopOrderServicesResponse getOrderServiceRequests(ShopOrderServiceRequestCondition condition) {
         if (condition.isQueryBlank()) {
@@ -41,6 +50,25 @@ public class AdminShopOrderServiceRequestService {
     public AdminShopOrderServiceResponse getOrderServiceRequest(Integer id) {
         ShopOrderServiceRequest shopOrderServiceRequest = adminShopOrderServiceRequestRepository.getById(id);
         return AdminShopOrderServiceResponse.from(shopOrderServiceRequest);
+    }
+
+    @Transactional
+    public void processOrderServiceRequest(Integer id, AdminShopOrderServiceRequestProcessRequest request) {
+        ShopOrderServiceRequest application = adminShopOrderServiceRequestRepository.getByIdForUpdate(id);
+        switch (request.processType()) {
+            case APPROVE -> approve(application);
+            case REJECT -> application.reject(request.rejectionReason());
+        }
+    }
+
+    private void approve(ShopOrderServiceRequest application) {
+        application.requirePending();
+        if (application.getMenus() == null || application.getMenus().isEmpty()
+            || !StringUtils.hasText(application.getAccountHolder())) {
+            throw CustomException.of(ORDER_SERVICE_REQUEST_INCOMPLETE);
+        }
+        orderableShopPromotionService.promote(application);
+        application.approve(LocalDateTime.now(clock));
     }
 
     private Long getTotalRequestsCount(ShopOrderServiceRequestCondition condition) {

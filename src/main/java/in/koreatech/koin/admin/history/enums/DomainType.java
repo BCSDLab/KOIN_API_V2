@@ -17,6 +17,7 @@ public enum DomainType {
 
     SHOPS("상점"),
     SHOPSCATEGORIES("상점 카테고리"),
+    SHOP_ORDER_REQUEST("상점 주문 서비스 신청"),
 
     MENUS("메뉴"),
     MENUSCATEGORIES("메뉴 카테고리"),

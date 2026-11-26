@@ -9,6 +9,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ApiResponseCode {
 
+    UNSUPPORTED_LANGUAGE(HttpStatus.BAD_REQUEST, "지원하지 않는 언어입니다."),
+    SOURCE_CHANGED(HttpStatus.CONFLICT, "원문이 변경되었습니다. 원문을 다시 조회해 주세요."),
+    TRANSLATION_NOT_FOUND(HttpStatus.NOT_FOUND, "번역 결과를 찾을 수 없습니다."),
+    TRANSLATION_SOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "번역할 원문을 찾을 수 없습니다."),
+    TRANSLATION_RESULT_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "저장된 번역 결과를 읽을 수 없습니다."),
     DINING_REPORT_DATE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "오늘 식단만 제보할 수 있습니다."),
     INVALID_REPORT_IMAGE(HttpStatus.BAD_REQUEST, "제보 사진이 올바르지 않습니다."),
     BOT_AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "삐봇 서비스 인증에 실패했습니다."),
@@ -78,6 +83,7 @@ public enum ApiResponseCode {
     ORDER_AMOUNT_BELOW_MINIMUM(HttpStatus.BAD_REQUEST, "최소 주문 금액을 충족하지 않습니다."),
     INVALID_SELF_CHAT(HttpStatus.BAD_REQUEST, "자신이 올린 게시글에 메시지를 보낼 수 없습니다."),
     INVALID_WEBSOCKET_USER_SESSION(HttpStatus.BAD_REQUEST, "웹소켓 사용자 세션 탐색 실패"),
+    SHOP_BANK_ACCOUNT_UNAVAILABLE(HttpStatus.BAD_REQUEST, "상점의 계좌이체 정보가 등록되지 않았습니다."),
     ORDER_PRICE_MISMATCH(HttpStatus.BAD_REQUEST, "클라이언트 요청 금액이 서버 계산 결과와 다릅니다."),
     MISMATCH_TEMPORARY_PAYMENT(HttpStatus.BAD_REQUEST, "요청한 정보가 임시 결제 정보와 일치하지 않습니다."),
     PAYMENT_ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 결제입니다."),
@@ -191,6 +197,8 @@ public enum ApiResponseCode {
     DUPLICATE_CLUB_RECRUITMENT(HttpStatus.CONFLICT, "동아리 공고가 이미 존재합니다."),
     DUPLICATE_REQUESTED_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 전환 신청이 접수된 상점입니다."),
     DUPLICATE_ORDERABLE_SHOP(HttpStatus.CONFLICT, "이미 주문 가능한 상점입니다."),
+    ORDER_SERVICE_REQUEST_ALREADY_PROCESSED(HttpStatus.CONFLICT, "이미 처리된 주문 서비스 신청입니다."),
+    ORDER_SERVICE_REQUEST_INCOMPLETE(HttpStatus.CONFLICT, "이관 메뉴와 예금주가 있는 신청만 수락할 수 있습니다."),
     DUPLICATE_SEMESTER(HttpStatus.CONFLICT, "이미 존재하는 학기입니다."),
     OVERLAPPING_SEMESTER_DATE_RANGE(HttpStatus.CONFLICT, "학기 기간이 기존 학기와 겹칩니다."),
     DUPLICATE_FOUND_STATUS(HttpStatus.CONFLICT, "이미 찾음 처리된 분실물 게시글입니다."),

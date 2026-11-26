@@ -24,7 +24,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.redisson.Redisson;
@@ -33,10 +35,6 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
@@ -63,7 +61,6 @@ import in.koreatech.koin.infrastructure.fcm.FcmSendRequest;
 import in.koreatech.koin.infrastructure.fcm.FcmSendResponse;
 
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
-@Import(DiningSoldOutNotificationConcurrencyTest.NotificationLockConfig.class)
 class DiningSoldOutNotificationConcurrencyTest extends AcceptanceTest {
 
     private static final long TIMEOUT_SECONDS = 15;
@@ -99,14 +96,33 @@ class DiningSoldOutNotificationConcurrencyTest extends AcceptanceTest {
     private PlatformTransactionManager transactionManager;
 
     @Autowired
-    private RedissonClient redissonClient;
-
-    @MockBean
     private FcmClient fcmClient;
+
+    @Value("${spring.data.redis.host}")
+    private String redisHost;
+
+    @Value("${spring.data.redis.port}")
+    private int redisPort;
+
+    private RedissonClient redissonClient;
 
     private Integer diningId;
     private Integer otherDiningId;
     private String coopToken;
+
+    @BeforeAll
+    void createRedissonClient() {
+        Config config = new Config();
+        // watchdog 갱신도 6초 지연 안에 검증한다. 운영 설정은 변경하지 않는다.
+        config.setLockWatchdogTimeout(3_000);
+        config.useSingleServer().setAddress("redis://" + redisHost + ":" + redisPort);
+        redissonClient = Redisson.create(config);
+    }
+
+    @AfterAll
+    void shutdownRedissonClient() {
+        redissonClient.shutdown();
+    }
 
     @BeforeEach
     void setUp() {
@@ -227,19 +243,5 @@ class DiningSoldOutNotificationConcurrencyTest extends AcceptanceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"menu_id\":%d,\"sold_out\":%s}".formatted(targetDiningId, soldOut)))
             .andReturn().getResponse().getStatus();
-    }
-
-    @TestConfiguration
-    static class NotificationLockConfig {
-
-        @Bean(destroyMethod = "shutdown")
-        RedissonClient notificationRedissonClient(@Value("${spring.data.redis.host}") String host,
-            @Value("${spring.data.redis.port}") int port) {
-            Config config = new Config();
-            // 테스트에서 watchdog 갱신도 6초 지연 안에 검증한다. 운영 설정은 변경하지 않는다.
-            config.setLockWatchdogTimeout(3_000);
-            config.useSingleServer().setAddress("redis://" + host + ":" + port);
-            return Redisson.create(config);
-        }
     }
 }

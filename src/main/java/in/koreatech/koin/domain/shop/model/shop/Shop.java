@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.hibernate.annotations.Where;
+import org.springframework.util.StringUtils;
 
 import in.koreatech.koin.common.model.BaseEntity;
 import in.koreatech.koin.domain.order.shop.model.domain.ShopBaseDeliveryTips;
@@ -24,6 +25,8 @@ import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
 import in.koreatech.koin.domain.shop.model.menu.MenuCategory;
 import in.koreatech.koin.domain.shop.model.review.ShopReview;
+import in.koreatech.koin.global.code.ApiResponseCode;
+import in.koreatech.koin.global.exception.CustomException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -159,6 +162,10 @@ public class Shop extends BaseEntity {
     @Column(name = "account_number", length = 20)
     private String accountNumber;
 
+    @Size(max = 50)
+    @Column(name = "account_holder", length = 50)
+    private String accountHolder;
+
     @Column(name = "introduction", columnDefinition = "text")
     private String introduction;
 
@@ -184,6 +191,7 @@ public class Shop extends BaseEntity {
         Integer hit,
         String bank,
         String accountNumber,
+        String accountHolder,
         ShopCategory shopMainCategory,
         ShopOperation shopOperation
     ) {
@@ -204,6 +212,7 @@ public class Shop extends BaseEntity {
         this.hit = hit;
         this.bank = bank;
         this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
         this.shopMainCategory = shopMainCategory;
         this.shopOperation = shopOperation;
     }
@@ -232,6 +241,13 @@ public class Shop extends BaseEntity {
         this.bank = bank;
         this.accountNumber = accountNumber;
         this.shopMainCategory = shopMainCategory;
+    }
+
+    public void enableOrderServiceBankAccount(String bank, String accountNumber, String accountHolder) {
+        this.payBank = true;
+        this.bank = bank;
+        this.accountNumber = accountNumber;
+        this.accountHolder = accountHolder;
     }
 
     public boolean isOpen(LocalDateTime now) {
@@ -334,6 +350,13 @@ public class Shop extends BaseEntity {
 
     public String getFullAddress() {
         return String.join(" ", this.address, this.addressDetail);
+    }
+
+    // TODO: 예금주명 추가되면 검증 로직 추가 필요
+    public void validateBankAccount() {
+        if (!payBank || !StringUtils.hasText(bank) || !StringUtils.hasText(accountNumber)) {
+            throw CustomException.of(ApiResponseCode.SHOP_BANK_ACCOUNT_UNAVAILABLE);
+        }
     }
 
     public boolean isOwner(Integer ownerId) {

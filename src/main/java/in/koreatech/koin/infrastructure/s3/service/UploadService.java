@@ -18,7 +18,7 @@ import in.koreatech.koin.infrastructure.s3.dto.UploadUrlRequest;
 import in.koreatech.koin.infrastructure.s3.dto.UploadUrlResponse;
 import in.koreatech.koin.infrastructure.s3.model.ImageUploadDomain;
 import in.koreatech.koin.global.exception.custom.KoinIllegalArgumentException;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class UploadService {
 
-    private final S3Client s3Client;
+    private final S3ClientWrapper s3Client;
     private final Clock clock;
 
     public UploadUrlResponse getPresignedUrl(ImageUploadDomain domain, UploadUrlRequest request) {

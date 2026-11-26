@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,4 +43,10 @@ public class OrderableShopImage extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Builder
+    public OrderableShopImage(OrderableShop orderableShop, String imageUrl, boolean isThumbnail) {
+        this.orderableShop = orderableShop;
+        this.imageUrl = imageUrl;
+        this.isThumbnail = isThumbnail;
+    }
 }

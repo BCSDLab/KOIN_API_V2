@@ -29,6 +29,7 @@ public interface ChatMessagePollingApi {
         UNAUTHORIZED_USER,
     })
     @Operation(
+        deprecated = true,
         summary = "분실물 게시글 쪽지 채팅방 전체 메시지 조회 (Poll) 및 활성 세션 갱신",
         description = """
             ### 폴링 방식 메시지 조회 API
@@ -51,6 +52,7 @@ public interface ChatMessagePollingApi {
         UNAUTHORIZED_USER,
     })
     @Operation(
+        deprecated = true,
         summary = "분실물 게시글 쪽지 채팅방 메시지 전송",
         description = """
             ### 폴링 방식 메시지 전송 API
@@ -81,6 +83,7 @@ public interface ChatMessagePollingApi {
         UNAUTHORIZED_USER,
     })
     @Operation(
+        deprecated = true,
         summary = "분실물 게시글 쪽지 채팅방 명시적 퇴장",
         description = """
             ### 채팅방 퇴장 API

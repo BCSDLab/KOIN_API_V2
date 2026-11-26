@@ -50,7 +50,7 @@ jobs:
           set -a
           source .env.example
           set +a
-          ./gradlew clean build -x test -x webAuthHttpTest -Dspring.profiles.active=prod
+          ./gradlew clean build -x test -Dspring.profiles.active=prod
 
       - name: Prepare production artifact without embedded secrets
         run: |

@@ -51,4 +51,9 @@ public class ShopOperation {
     public void changeOpenStatus(boolean isOpen) {
         this.isOpen = isOpen;
     }
+
+    public void prepareForOrderService() {
+        this.isOpen = false;
+        this.isDeleted = false;
+    }
 }

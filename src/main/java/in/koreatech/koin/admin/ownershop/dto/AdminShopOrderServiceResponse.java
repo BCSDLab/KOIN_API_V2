@@ -4,10 +4,12 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceMenuSnapshot;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequest;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestDeliveryOption;
 import in.koreatech.koin.domain.ownershop.model.ShopOrderServiceRequestStatus;
@@ -65,7 +67,16 @@ public record AdminShopOrderServiceResponse(
 
     @Schema(description = "승인 일자", requiredMode = NOT_REQUIRED)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime approvedAt
+    LocalDateTime approvedAt,
+
+    @Schema(description = "예금주", example = "홍길동", requiredMode = NOT_REQUIRED, nullable = true)
+    String accountHolder,
+
+    @Schema(description = "신청 시 선택한 메뉴와 옵션", requiredMode = NOT_REQUIRED, nullable = true)
+    List<ShopOrderServiceMenuSnapshot> menus,
+
+    @Schema(description = "반려 사유", requiredMode = NOT_REQUIRED, nullable = true)
+    String rejectionReason
 ) {
     public static AdminShopOrderServiceResponse from(ShopOrderServiceRequest shopOrderServiceRequest) {
         return new AdminShopOrderServiceResponse(
@@ -84,7 +95,10 @@ public record AdminShopOrderServiceResponse(
             shopOrderServiceRequest.getBank(),
             shopOrderServiceRequest.getAccountNumber(),
             shopOrderServiceRequest.getCreatedAt(),
-            shopOrderServiceRequest.getApprovedAt()
+            shopOrderServiceRequest.getApprovedAt(),
+            shopOrderServiceRequest.getAccountHolder(),
+            shopOrderServiceRequest.getMenus(),
+            shopOrderServiceRequest.getRejectionReason()
         );
     }
 }

@@ -33,12 +33,13 @@ public interface DiningApi {
             @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(hidden = true)))
         }
     )
-    @Operation(summary = "식단 목록 조회")
+    @Operation(summary = "식단 목록 조회", description = "language로 display_place를 선택합니다. type 표시명은 언어 카탈로그의 dining.type.{type}을 사용합니다. 식단 자동 번역은 조회 후 각 항목의 translation_source_version과 설정 언어로 POST /dinings/{id}/translations를 호출합니다. 원문 menu는 유지합니다.")
     @GetMapping("/dinings")
     ResponseEntity<List<DiningResponse>> getDinings(
         @DateTimeFormat(pattern = "yyMMdd")
         @Parameter(description = "조회 날짜(yyMMdd)") @RequestParam(required = false) LocalDate date,
-        @UserId Integer userId
+        @UserId Integer userId,
+        @RequestParam(defaultValue = "ko-KR") String language
     );
 
     @Operation(summary = "식단 좋아요")

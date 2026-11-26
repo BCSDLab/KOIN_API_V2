@@ -2,7 +2,6 @@ package in.koreatech.koin.acceptance.domain;
 
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentApplicationStatus.ACCEPTED;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentCategory.PROJECT;
-import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentChatRoomType.DIRECT;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentMeetingType.ONLINE;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentStatus.RECRUITING;
 import static in.koreatech.koin.domain.team.recruitment.enums.TeamRecruitmentType.GENERAL;
@@ -17,15 +16,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.web.servlet.MvcResult;
@@ -36,15 +31,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import in.koreatech.koin.acceptance.AcceptanceTest;
 import in.koreatech.koin.acceptance.fixture.DepartmentAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.acceptance.support.DirectRoomSaveBarrier;
 import in.koreatech.koin.domain.student.model.Department;
 import in.koreatech.koin.domain.student.model.Student;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitment;
 import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentApplication;
-import in.koreatech.koin.domain.team.recruitment.model.TeamRecruitmentChatRoom;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentApplicationRepository;
 import in.koreatech.koin.domain.team.recruitment.repository.TeamRecruitmentRepository;
 
-@Import(TeamRecruitmentDirectChatConcurrencyTest.DirectRoomSaveBarrier.class)
 class TeamRecruitmentDirectChatConcurrencyTest extends AcceptanceTest {
 
     private static final int CONCURRENT_REQUEST_COUNT = 8;
@@ -105,6 +99,11 @@ class TeamRecruitmentDirectChatConcurrencyTest extends AcceptanceTest {
             .profileSnapshot("{}")
             .snapshotVersion(1)
             .build());
+    }
+
+    @AfterEach
+    void resetBarrier() {
+        directRoomSaveBarrier.reset();
     }
 
     @Test
@@ -210,30 +209,5 @@ class TeamRecruitmentDirectChatConcurrencyTest extends AcceptanceTest {
             statuses.add(200);
         }
         return statuses;
-    }
-
-    @Aspect
-    static class DirectRoomSaveBarrier {
-
-        private final AtomicReference<CountDownLatch> insertions =
-            new AtomicReference<>(new CountDownLatch(0));
-
-        void expectInsertions(int requestCount) {
-            insertions.set(new CountDownLatch(requestCount));
-        }
-
-        @Around("bean(teamRecruitmentChatRoomRepository) && execution(* save(..)) && args(chatRoom)")
-        Object awaitConcurrentInsertions(
-            ProceedingJoinPoint joinPoint,
-            TeamRecruitmentChatRoom chatRoom
-        ) throws Throwable {
-            if (chatRoom.getRoomType() == DIRECT) {
-                CountDownLatch latch = insertions.get();
-                latch.countDown();
-                // 수정 전에는 모든 요청이 insert까지 도달하고, 수정 후에는 최초 요청만 도달한다.
-                latch.await(1, SECONDS);
-            }
-            return joinPoint.proceed();
-        }
     }
 }

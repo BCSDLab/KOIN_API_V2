@@ -9,9 +9,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
+
+import jakarta.persistence.LockModeType;
 
 public interface ShopRepository extends Repository<Shop, Integer> {
 
@@ -25,6 +28,15 @@ public interface ShopRepository extends Repository<Shop, Integer> {
 
     default Shop getById(Integer shopId) {
         return findById(shopId)
+            .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
+    }
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM Shop s WHERE s.id = :shopId")
+    Optional<Shop> findByIdForUpdate(@Param("shopId") Integer shopId);
+
+    default Shop getByIdForUpdate(Integer shopId) {
+        return findByIdForUpdate(shopId)
             .orElseThrow(() -> ShopNotFoundException.withDetail("shopId: " + shopId));
     }
 

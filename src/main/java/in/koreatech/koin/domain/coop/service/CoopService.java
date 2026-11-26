@@ -73,7 +73,7 @@ import in.koreatech.koin.domain.user.repository.UserRepository;
 import in.koreatech.koin.domain.user.service.RefreshTokenService;
 import in.koreatech.koin.global.auth.JwtProvider;
 import in.koreatech.koin.global.exception.custom.KoinIllegalStateException;
-import in.koreatech.koin.infrastructure.s3.client.S3Client;
+import in.koreatech.koin.infrastructure.s3.client.S3ClientWrapper;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -93,7 +93,7 @@ public class CoopService {
     private final CoopShopService coopShopService;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final S3Client s3Client;
+    private final S3ClientWrapper s3Client;
     private final List<String> placeFilters = Arrays.asList("A코너", "B코너", "C코너");
     private final List<String> cafeteriaPlaceFilters = Arrays.asList("A코너", "B코너", "C코너");
     private final List<String> allPlaceFilters = Arrays.asList("A코너", "B코너", "C코너", "능수관", "2캠퍼스");

@@ -127,6 +127,25 @@ public class Cart extends BaseEntity {
         }
     }
 
+    public void validateDeliveryOrder() {
+        if (cartMenuItems.isEmpty()) {
+            throw CustomException.of(ApiResponseCode.NOT_FOUND_CART_ITEM);
+        }
+        validateOrderType(OrderType.DELIVERY);
+        orderableShop.requireShopOpen();
+        orderableShop.requireMinimumOrderAmount(calculateItemsAmount());
+        cartMenuItems.forEach(item -> item.getOrderableShopMenu().validateSoldOut());
+    }
+
+    public void validateTakeoutOrder() {
+        if (cartMenuItems.isEmpty()) {
+            throw CustomException.of(ApiResponseCode.NOT_FOUND_CART_ITEM);
+        }
+        validateOrderType(OrderType.TAKE_OUT);
+        orderableShop.requireShopOpen();
+        cartMenuItems.forEach(item -> item.getOrderableShopMenu().validateSoldOut());
+    }
+
     public Integer getItemTypeCount() {
         return this.cartMenuItems.size();
     }
