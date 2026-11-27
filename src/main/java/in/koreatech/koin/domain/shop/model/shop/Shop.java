@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
@@ -47,6 +48,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@DynamicUpdate
 @Entity
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "shops")
@@ -215,6 +217,10 @@ public class Shop extends BaseEntity {
         this.accountHolder = accountHolder;
         this.shopMainCategory = shopMainCategory;
         this.shopOperation = shopOperation;
+    }
+
+    public void updateModifiedAt(LocalDateTime modifiedAt) {
+        super.updateModifiedAt(modifiedAt);
     }
 
     public void modifyShop(

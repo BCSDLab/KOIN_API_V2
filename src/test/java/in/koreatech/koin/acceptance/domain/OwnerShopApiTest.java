@@ -10,7 +10,10 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -30,6 +33,7 @@ import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.domain.owner.model.Owner;
 import in.koreatech.koin.domain.shop.model.event.EventArticle;
 import in.koreatech.koin.domain.shop.model.menu.Menu;
@@ -65,6 +69,9 @@ class OwnerShopApiTest extends AcceptanceTest {
 
     @Autowired
     private EventArticleRepository eventArticleRepository;
+
+    @Autowired
+    private TestTimeConfig testTimeConfig;
 
     @Autowired
     private MenuAcceptanceFixture menuFixture;
@@ -625,6 +632,130 @@ class OwnerShopApiTest extends AcceptanceTest {
                 }
             );
         });
+    }
+
+    @Test
+    void 사장님이_영업시간만_수정하면_상점_수정일이_갱신된다() throws Exception {
+        entityManager.flush();
+        entityManager.clear();
+        LocalDateTime 최초_수정시각 = shopRepository.getById(shop_마슬랜.getId()).getUpdatedAt();
+        try {
+            testTimeConfig.setCurrTime(LocalDateTime.of(2024, 1, 16, 12, 0));
+            clock.advance(Duration.ofDays(1));
+            mockMvc.perform(
+                    put("/owner/shops/{id}", shop_마슬랜.getId())
+                        .header("Authorization", "Bearer " + token_현수)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "address": "천안시 동남구 병천면 1600",
+                              "main_category_id": %1$d,
+                              "category_ids": [%1$d],
+                              "delivery": true,
+                              "delivery_price": 3000,
+                              "description": "마슬랜 치킨입니다.",
+                              "image_urls": ["https://test-image.com/마슬랜.png", "https://test-image.com/마슬랜2.png"],
+                              "name": "마슬랜 치킨",
+                              "open": [
+                                {"day_of_week": "MONDAY", "closed": false, "open_time": "09:00", "close_time": "21:00"},
+                                {"day_of_week": "FRIDAY", "closed": false, "open_time": "00:00", "close_time": "00:00"}
+                              ],
+                              "pay_bank": true,
+                              "pay_card": true,
+                              "phone": "010-7574-1212",
+                              "bank": "국민",
+                              "account_number": "01022595923"
+                            }
+                            """.formatted(shopCategory_치킨.getId()))
+                )
+                .andExpect(status().isCreated());
+
+            entityManager.flush();
+            entityManager.clear();
+            Shop result = shopRepository.getById(shop_마슬랜.getId());
+            assertThat(최초_수정시각.toLocalDate()).isEqualTo(LocalDate.of(2024, 1, 15));
+            assertThat(result.getUpdatedAt().toLocalDate()).isEqualTo(LocalDate.of(2024, 1, 16));
+            assertThat(result.getShopOpens()).anyMatch(open ->
+                open.getDayOfWeek().equals("MONDAY") && open.getOpenTime().equals(LocalTime.of(9, 0)));
+            mockMvc.perform(get("/owner/shops/{shopId}", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_현수))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updated_at").value("2024-01-16"));
+        } finally {
+            testTimeConfig.setOriginTime();
+            clock.reset();
+        }
+    }
+
+    @Test
+    void 사장님이_메뉴_가격만_수정하면_상점과_메뉴_수정일이_갱신된다() throws Exception {
+        메뉴_한_항목_수정일_검증("짜장면", 8000,
+            "\"https://test.com/짜장면.jpg\", \"https://test.com/짜장면22.jpg\"");
+    }
+
+    @Test
+    void 사장님이_메뉴_이미지만_수정하면_상점과_메뉴_수정일이_갱신된다() throws Exception {
+        메뉴_한_항목_수정일_검증("짜장면", 7000, "\"https://test.com/새짜장면.jpg\"");
+    }
+
+    @Test
+    void 사장님이_메뉴_이름만_수정하면_상점과_메뉴_수정일이_갱신된다() throws Exception {
+        메뉴_한_항목_수정일_검증("새 짜장면", 7000,
+            "\"https://test.com/짜장면.jpg\", \"https://test.com/짜장면22.jpg\"");
+    }
+
+    private void 메뉴_한_항목_수정일_검증(String name, int price, String imageUrls) throws Exception {
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+        entityManager.flush();
+        entityManager.clear();
+        LocalDateTime 최초_상점_수정시각 = shopRepository.getById(shop_마슬랜.getId()).getUpdatedAt();
+        LocalDateTime 최초_메뉴_수정시각 = menuRepository.getById(menu.getId()).getUpdatedAt();
+        try {
+            testTimeConfig.setCurrTime(LocalDateTime.of(2024, 1, 16, 12, 0));
+            clock.advance(Duration.ofDays(1));
+            mockMvc.perform(
+                    put("/owner/shops/menus/{menuId}", menu.getId())
+                        .header("Authorization", "Bearer " + token_현수)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "category_ids": [%d],
+                              "description": "맛있는 짜장면",
+                              "image_urls": [%s],
+                              "is_single": true,
+                              "name": "%s",
+                              "single_price": %d
+                            }
+                            """.formatted(menuCategory_메인.getId(), imageUrls, name, price))
+                )
+                .andExpect(status().isCreated());
+
+            entityManager.flush();
+            entityManager.clear();
+            Shop resultShop = shopRepository.getById(shop_마슬랜.getId());
+            Menu resultMenu = menuRepository.getById(menu.getId());
+            assertThat(최초_상점_수정시각.toLocalDate()).isEqualTo(LocalDate.of(2024, 1, 15));
+            assertThat(최초_메뉴_수정시각.toLocalDate()).isEqualTo(LocalDate.of(2024, 1, 15));
+            assertThat(resultShop.getUpdatedAt().toLocalDate()).isEqualTo(LocalDate.of(2024, 1, 16));
+            assertThat(resultMenu.getUpdatedAt().toLocalDate()).isEqualTo(LocalDate.of(2024, 1, 16));
+            assertThat(resultMenu.getName()).isEqualTo(name);
+            assertThat(resultMenu.getMenuOptions()).singleElement().satisfies(option ->
+                assertThat(option.getPrice()).isEqualTo(price));
+            assertThat(resultMenu.getMenuImages()).extracting(MenuImage::getImageUrl)
+                .containsExactlyInAnyOrder(imageUrls.replace("\"", "").split(", "));
+            mockMvc.perform(get("/owner/shops/{shopId}", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_현수))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updated_at").value("2024-01-16"));
+            mockMvc.perform(get("/owner/shops/menus")
+                    .header("Authorization", "Bearer " + token_현수)
+                    .param("shopId", shop_마슬랜.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updated_at").value("2024-01-16"));
+        } finally {
+            testTimeConfig.setOriginTime();
+            clock.reset();
+        }
     }
 
     @Test

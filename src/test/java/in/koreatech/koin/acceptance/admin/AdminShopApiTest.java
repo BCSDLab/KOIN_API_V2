@@ -5,12 +5,15 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
@@ -24,6 +27,7 @@ import in.koreatech.koin.acceptance.fixture.ShopCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopNotificationMessageAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.ShopParentCategoryAcceptanceFixture;
 import in.koreatech.koin.acceptance.fixture.UserAcceptanceFixture;
+import in.koreatech.koin.config.TestTimeConfig;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuCategoryRepository;
 import in.koreatech.koin.admin.shop.repository.menu.AdminMenuRepository;
 import in.koreatech.koin.admin.shop.repository.shop.AdminShopCategoryRepository;
@@ -52,6 +56,9 @@ class AdminShopApiTest extends AcceptanceTest {
 
     @Autowired
     private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private TestTimeConfig testTimeConfig;
 
     @Autowired
     private AdminShopCategoryRepository adminShopCategoryRepository;
@@ -729,6 +736,166 @@ class AdminShopApiTest extends AcceptanceTest {
                 softly.assertThat(shopOpens.get(0).isClosed()).isFalse();
             });
         });
+    }
+
+    @Test
+    void 어드민이_영업시간만_변경하면_상점_수정일이_갱신된다() throws Exception {
+        String request = """
+            {
+              "address": "천안시 동남구 병천면 1600",
+              "main_category_id": %1$d,
+              "category_ids": [%1$d],
+              "delivery": true,
+              "delivery_price": 3000,
+              "description": "마슬랜 치킨입니다.",
+              "image_urls": ["https://test-image.com/마슬랜.png", "https://test-image.com/마슬랜2.png"],
+              "name": "마슬랜 치킨",
+              "open": [
+                {"day_of_week": "MONDAY", "closed": false, "open_time": "00:00", "close_time": "21:00"},
+                {"day_of_week": "TUESDAY", "closed": false, "open_time": "09:00", "close_time": "21:00"},
+                {"day_of_week": "WEDNESDAY", "closed": false, "open_time": "09:00", "close_time": "21:00"},
+                {"day_of_week": "THURSDAY", "closed": false, "open_time": "09:00", "close_time": "21:00"},
+                {"day_of_week": "FRIDAY", "closed": false, "open_time": "00:00", "close_time": "00:00"},
+                {"day_of_week": "SATURDAY", "closed": false, "open_time": "09:00", "close_time": "21:00"},
+                {"day_of_week": "SUNDAY", "closed": false, "open_time": "09:00", "close_time": "21:00"}
+              ],
+              "pay_bank": true,
+              "pay_card": true,
+              "phone": "010-7574-1212",
+              "bank": "국민",
+              "account_number": "01022595923"
+            }
+            """.formatted(shopCategory_치킨.getId());
+
+        mockMvc.perform(put("/admin/shops/{id}", shop_마슬랜.getId())
+                .header("Authorization", "Bearer " + token_admin)
+                .contentType(MediaType.APPLICATION_JSON).content(request))
+            .andExpect(status().isOk());
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(adminShopRepository.getById(shop_마슬랜.getId()).getUpdatedAt())
+            .isEqualTo(LocalDateTime.of(2024, 1, 15, 12, 0));
+
+        try {
+            testTimeConfig.setCurrTime(LocalDateTime.of(2024, 1, 16, 12, 0));
+            clock.fix(LocalDateTime.of(2024, 1, 16, 12, 0).atZone(clock.getZone()).toInstant(), clock.getZone());
+            mockMvc.perform(put("/admin/shops/{id}", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(request.replace("\"close_time\": \"21:00\"", "\"close_time\": \"22:00\"")))
+                .andExpect(status().isOk());
+            entityManager.flush();
+            entityManager.clear();
+
+            Shop updated = adminShopRepository.getById(shop_마슬랜.getId());
+            assertThat(updated.getCreatedAt()).isEqualTo(LocalDateTime.of(2024, 1, 15, 12, 0));
+            assertThat(updated.getUpdatedAt()).isEqualTo(LocalDateTime.of(2024, 1, 16, 12, 0));
+            mockMvc.perform(get("/admin/shops/{id}", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updated_at").value("2024-01-16"))
+                .andExpect(jsonPath("$.open[0].close_time").value("22:00"));
+            mockMvc.perform(get("/shops/{id}", shop_마슬랜.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updated_at").value("2024-01-16"));
+        } finally {
+            testTimeConfig.setOriginTime();
+            clock.reset();
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"가격", "이미지", "이름"})
+    void 어드민이_메뉴의_한_항목만_변경하면_상점과_메뉴_수정일이_갱신된다(String 변경항목) throws Exception {
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+        Integer menuId = menu.getId();
+        entityManager.flush();
+        entityManager.clear();
+        assertThat(adminMenuRepository.getById(menuId).getUpdatedAt())
+            .isEqualTo(LocalDateTime.of(2024, 1, 15, 12, 0));
+
+        String name = 변경항목.equals("이름") ? "수정된 짜장면" : "짜장면";
+        int price = 변경항목.equals("가격") ? 8000 : 7000;
+        String firstImage = 변경항목.equals("이미지") ? "https://test.com/수정.jpg" : "https://test.com/짜장면.jpg";
+        try {
+            testTimeConfig.setCurrTime(LocalDateTime.of(2024, 1, 16, 12, 0));
+            clock.fix(LocalDateTime.of(2024, 1, 16, 12, 0).atZone(clock.getZone()).toInstant(), clock.getZone());
+            mockMvc.perform(put("/admin/shops/{shopId}/menus/{menuId}", shop_마슬랜.getId(), menuId)
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "category_ids": [%d],
+                          "description": "맛있는 짜장면",
+                          "image_urls": ["%s", "https://test.com/짜장면22.jpg"],
+                          "is_single": true,
+                          "name": "%s",
+                          "single_price": %d
+                        }
+                        """.formatted(menuCategory_메인.getId(), firstImage, name, price)))
+                .andExpect(status().isCreated());
+            entityManager.flush();
+            entityManager.clear();
+
+            Menu updated = adminMenuRepository.getById(menuId);
+            assertThat(updated.getCreatedAt()).isEqualTo(LocalDateTime.of(2024, 1, 15, 12, 0));
+            assertThat(updated.getUpdatedAt()).isEqualTo(LocalDateTime.of(2024, 1, 16, 12, 0));
+            assertThat(updated.getName()).isEqualTo(name);
+            assertThat(updated.getMenuOptions()).extracting(MenuOption::getPrice).containsExactly(price);
+            assertThat(updated.getMenuImages()).extracting(MenuImage::getImageUrl).contains(firstImage);
+            assertThat(adminShopRepository.getById(shop_마슬랜.getId()).getUpdatedAt())
+                .isEqualTo(LocalDateTime.of(2024, 1, 16, 12, 0));
+            mockMvc.perform(get("/admin/shops/{id}/menus", shop_마슬랜.getId())
+                    .header("Authorization", "Bearer " + token_admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updated_at").value("2024-01-16"));
+            mockMvc.perform(get("/shops/{id}/menus", shop_마슬랜.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.updated_at").value("2024-01-16"));
+        } finally {
+            testTimeConfig.setOriginTime();
+            clock.reset();
+        }
+    }
+
+    @Test
+    void 어드민이_메뉴를_수정해도_그사이_저장된_상점_정보를_덮어쓰지_않는다() throws Exception {
+        Menu menu = menuFixture.짜장면_단일메뉴(shop_마슬랜, menuCategory_메인);
+        entityManager.flush();
+        entityManager.clear();
+        // 메뉴 수정이 상점을 읽어 둔 뒤 다른 요청이 상점 전화번호를 바꿔 저장한 상황
+        adminMenuRepository.getById(menu.getId()).getShop().getPhone();
+        entityManager.createNativeQuery("UPDATE shops SET phone = '010-0000-0000' WHERE id = :id")
+            .setParameter("id", shop_마슬랜.getId())
+            .executeUpdate();
+
+        try {
+            testTimeConfig.setCurrTime(LocalDateTime.of(2024, 1, 16, 12, 0));
+            clock.fix(LocalDateTime.of(2024, 1, 16, 12, 0).atZone(clock.getZone()).toInstant(), clock.getZone());
+            mockMvc.perform(put("/admin/shops/{shopId}/menus/{menuId}", shop_마슬랜.getId(), menu.getId())
+                    .header("Authorization", "Bearer " + token_admin)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                          "category_ids": [%d],
+                          "description": "맛있는 짜장면",
+                          "image_urls": ["https://test.com/짜장면.jpg", "https://test.com/짜장면22.jpg"],
+                          "is_single": true,
+                          "name": "짜장면",
+                          "single_price": 8000
+                        }
+                        """.formatted(menuCategory_메인.getId())))
+                .andExpect(status().isCreated());
+            entityManager.flush();
+        } finally {
+            testTimeConfig.setOriginTime();
+            clock.reset();
+        }
+
+        Object phone = entityManager.createNativeQuery("SELECT phone FROM shops WHERE id = :id")
+            .setParameter("id", shop_마슬랜.getId())
+            .getSingleResult();
+        assertThat(phone).isEqualTo("010-0000-0000");
     }
 
     @Test
