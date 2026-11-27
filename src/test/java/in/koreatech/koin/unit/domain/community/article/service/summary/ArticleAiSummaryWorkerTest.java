@@ -22,6 +22,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryProperties;
 import in.koreatech.koin.domain.community.article.service.summary.ArticleAiSummaryService;
@@ -123,6 +129,46 @@ class ArticleAiSummaryWorkerTest {
         verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), contains("재작성 결과"));
         verify(articleAiSummaryService, never()).skip(any(), any(), any());
         verify(articleAiSummaryService, never()).completeSuccess(any(), any(), any(), any());
+    }
+
+    @Test
+    void 이전_200자_기준_생성도_길이_검증에_실패하면_ERROR_로그_없이_재시도_가능한_실패로_처리한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        ArticleSummarySource source = source();
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenReturn(source);
+        when(articleSummaryAiClient.summarize(any(ArticleSummaryPrompt.class))).thenReturn(over200Result());
+        ListAppender<ILoggingEvent> logs = captureWorkerLogs();
+
+        try {
+            worker.process(1, "worker");
+        } finally {
+            releaseWorkerLogs(logs);
+        }
+
+        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), eq("요약 문장이 200자를 초과했습니다."));
+        assertThat(logs.list).noneSatisfy(event -> assertThat(event.getLevel()).isEqualTo(Level.ERROR));
+        assertThat(logs.list).anySatisfy(event -> {
+            assertThat(event.getLevel()).isEqualTo(Level.WARN);
+            assertThat(event.getFormattedMessage()).contains("summaryId: 1");
+        });
+    }
+
+    @Test
+    void 예상하지_못한_예외는_ERROR로_기록하고_재시도_가능한_실패로_처리한다() {
+        ArticleSummarySourceSeed seed = sourceSeed();
+        when(articleAiSummaryService.getGenerationSeed(1, "worker")).thenReturn(Optional.of(seed));
+        when(sourceReader.read(seed)).thenThrow(new IllegalStateException("unexpected"));
+        ListAppender<ILoggingEvent> logs = captureWorkerLogs();
+
+        try {
+            worker.process(1, "worker");
+        } finally {
+            releaseWorkerLogs(logs);
+        }
+
+        verify(articleAiSummaryService).completeFailure(eq(1), eq("worker"), eq("IllegalStateException: unexpected"));
+        assertThat(logs.list).anySatisfy(event -> assertThat(event.getLevel()).isEqualTo(Level.ERROR));
     }
 
     @Test
@@ -411,5 +457,23 @@ class ArticleAiSummaryWorkerTest {
         return new ArticleSummaryResult(List.of(
             new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(101))
         ));
+    }
+
+    private ArticleSummaryResult over200Result() {
+        return new ArticleSummaryResult(List.of(
+            new ArticleSummaryItem(ArticleSummaryIcon.DEFAULT, "가".repeat(201))
+        ));
+    }
+
+    private ListAppender<ILoggingEvent> captureWorkerLogs() {
+        ListAppender<ILoggingEvent> logs = new ListAppender<>();
+        logs.start();
+        ((Logger)LoggerFactory.getLogger(ArticleAiSummaryWorker.class)).addAppender(logs);
+        return logs;
+    }
+
+    private void releaseWorkerLogs(ListAppender<ILoggingEvent> logs) {
+        ((Logger)LoggerFactory.getLogger(ArticleAiSummaryWorker.class)).detachAppender(logs);
+        logs.stop();
     }
 }

@@ -34,6 +34,15 @@ public class ArticleAiSummaryWorker {
                 return;
             }
             articleAiSummaryService.completeFailureWithoutRetry(summaryId, workerId, e.getMessage());
+        } catch (ArticleSummaryValidationException e) {
+            // 모델 출력이 검증을 통과하지 못한 경우는 예상 가능한 실패라 ERROR 알림 없이 실패로 처리한다.
+            log.warn(
+                "게시글 AI 요약 검증에 실패했습니다. summaryId: {}, workerId: {}, reason: {}",
+                summaryId,
+                workerId,
+                e.getMessage()
+            );
+            articleAiSummaryService.completeFailure(summaryId, workerId, e.getMessage());
         } catch (Exception e) {
             log.error(
                 "게시글 AI 요약 워커에서 예기치 못한 예외가 발생했습니다. summaryId: {}, workerId: {}, exception: {}",
